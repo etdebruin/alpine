@@ -1,0 +1,5 @@
+<phpunit bootstrap="./bootstrap.php" colors="true">
+    <testsuite name="Alpine Test Suite">
+        <directory>./suite</directory>
+    </testsuite>
+</phpunit>

@@ -3,6 +3,7 @@
   class Alpine {
 
     public static $Module;
+    public static $types = array();
 
     private static $db = null;
 
@@ -24,7 +25,13 @@
       }
 
       if ($_POST) {
-        self::$Module->save($_POST);
+        if (self::$Module->id) {
+          self::$Module->save($_POST);
+        }
+        else {
+          self::$Module = $module::create($_POST);
+          header("Location: /$module/" . self::$Module->id);
+        }
       }
 
       self::content($module, $action);
@@ -45,7 +52,7 @@
       require $template_folder . '/alpine_head.php';
       $file = file_get_contents($template_folder . '/' . $template_file);
 
-      if ($action == 'edit') {
+      if ($action == 'edit' || $action == 'add') {
         echo "<form method='POST'>";
       }
 
@@ -53,7 +60,7 @@
       $file = preg_replace("/\(\(([a-z]+)\)\)/ie", 'self::injector(\\1, view)', $file);
       echo $file;
 
-      if ($action == 'edit') {
+      if ($action == 'edit' || $action == 'add') {
         echo "<input type=submit>";
         echo "</form>";
       }
@@ -67,7 +74,12 @@
         return self::$Module->$string;
       }
       else {
-        return "<input type=text name='$string' id='$string' value='".self::$Module->$string."' />";
+        if (strstr(self::$types[$string], 'varchar')) {
+          return "<input type=text name='$string' id='$string' value='".self::$Module->$string."' />";
+        }
+        if (self::$types[$string] == 'text') {
+          return "<textarea name='$string'>".self::$Module->$string."</textarea>";
+        }
       }
     }
 
@@ -112,12 +124,15 @@
       catch (Exception $e) {
         throw new Exception("Could not stamp $class: " . $e->getMessage());
       }
-      $table_fields = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+      $table_fields = $stmt->fetchAll();
 
       $Model = new $class;
 
-      foreach ($table_fields as $key) {
-        $Model->$key = '';
+      foreach ($table_fields as $table_field) {
+        $attr = $table_field['Field'];
+        $Model->$attr = '';
+        $Model::$types[$attr] = $table_field['Type'];
       }
 
       return $Model;
@@ -146,6 +161,7 @@
      * @return object Model, throws exception if no Models found.
      **/
     public static function getBy($params) {
+      $ModelStamp = self::stamp();
 
       $table = strtolower(get_called_class());
 
@@ -245,7 +261,7 @@
 
           try {
             $stmt->execute($values);
-            $params[0][static::key] = self::$db->lastInsertId();
+            $params[0]['id'] = self::$db->lastInsertId();
           }
           catch (PDOException $e) {
             throw new Exception($e->getMessage());
@@ -282,17 +298,18 @@
        **/
       if ($method == 'delete') {
         self::database();
+        $table = strtolower(get_called_class());
 
         if ($this->id) {
 
-          $stmt = 'DELETE FROM ' . static::table
-                  . ' WHERE ' . static::key . ' = ' . $this->id;
+          $stmt = 'DELETE FROM ' . $table
+                  . ' WHERE id = ' . $this->id;
 
           try {
             $result = self::$db->query($stmt);
           }
           catch (PDOException $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception($stmt . '-' . $e->getMessage());
           }
 
         }
