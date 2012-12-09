@@ -25,7 +25,12 @@
   }
 
   if ($module == 'Index') {
-    require dirname(dirname(__FILE__)) . '/template/index.php';
+    try {
+      require dirname(dirname(__FILE__)) . '/template/index.php';
+    }
+    catch (Exception $e) {
+      echo "Welcome to Alpine!";
+    }
     exit;
   }
 
