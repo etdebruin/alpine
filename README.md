@@ -1,9 +1,18 @@
 # Alpine
 
-## Setting up your app to use Alpine
+## Installing
 
-Easiest way is to `git pull` Alpine into your app folder and `require alpine/autoloader.php`.  Alpine will autoload all the classes in your app's `model/` folder.
+These steps will walk you through creating a new app using Alpine.
 
-Make sure that you name your file the same as your class, i.e. your User class should be in model/user.php.
+* Create your app folder, i.e. `myblog`
+* Change directory into `myblog` and `git clone https://github.com/etdebruin/alpine.git`
+* Make sure you set up your Apache virtual server with `myblog` as your document root
+* Make sure you are able to do mod rewrites.
+* In your `myblog` folder, create a .htaccess file that looks like this:
+
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^(.*)$ alpine/dispatch.php?path=$1 [QSA,NC,L]
 
 
+Your app should be ready to go.
