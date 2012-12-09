@@ -24,6 +24,11 @@
     $action = $path[1];
   }
 
+  if ($module == 'Index') {
+    require dirname(dirname(__FILE__)) . '/template/index.php';
+    exit;
+  }
+
   Alpine::render($module, $record, $action);
 
 ?>
