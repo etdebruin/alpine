@@ -10,14 +10,6 @@ These steps will walk you through creating a new app using Alpine.  One day it w
 * Change directory into `myblog` and `git clone https://github.com/etdebruin/alpine.git`
 * Make sure you set up your Apache virtual server with `myblog` as your document root
 * Make sure you are able to do mod rewrites.
-* In your `myblog` folder, create a .htaccess file that looks like this:
-
-```
-    RewriteEngine On
-    RewriteBase /
-    RewriteRule ^(.*)$ alpine/dispatch.php?path=$1 [QSA,NC,L]
-```
-
 * Now, create a `conf` folder in `myblog` so you have `myblog/conf`
 * Create a `local.php` file and this is where you set up your database connection
 
@@ -38,6 +30,7 @@ These steps will walk you through creating a new app using Alpine.  One day it w
 ```
 cp myblog/alpine/lib/skeleton/alpine_head.php myblog/template/
 cp myblog/alpine/lib/skeleton/alpine_foot.php myblog/template/
+cp myblog/alpine/lib/skeleton/.htaccess myblog/
 ```
 
 Your app should be ready to go and by that I mean, you should see a "Welcome to Alpine!"
